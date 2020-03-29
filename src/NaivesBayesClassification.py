@@ -48,8 +48,7 @@ def train_model(vocab, n, smoothing):
     f = open("OriginalDataSet/training-1.txt", "r")
     training_set = f.readlines()
     for line in training_set:
-        split = line.split("\t")
-        print(split)
+        split = line.replace('\n', '').split("\t")
         lang = split[2]
         tweet = split[3]
 
