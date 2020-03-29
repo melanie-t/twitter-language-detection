@@ -15,9 +15,6 @@ def build_model(vocab, n, tweet, language_dict):
                 print("Updated", n_gram, "count", language_dict[n_gram])
 
 
-en_dict = dict()
-v0_regex = "^[a-z]+$"          # V=0, lowercase and only letters
-v1_regex = "^[a-zA-Z]+$"       # V=1, Distinguish upper and lower case
 def validate_ngram(vocab, ngram):
     lang_regex = ''
     if vocab == 0:
@@ -29,8 +26,36 @@ def validate_ngram(vocab, ngram):
     else:
         return False
 
-test = "abc!DeFg*"
-test2 = "a$bcdefgab*cd*e"
 
-create_n_grams(2, test, en_dict, v1_regex)
-print(en_dict)
+def train_model(vocab, n, smoothing):
+    all_lang = dict()
+    eu_dict = dict()
+    ca_dict = dict()
+    gl_dict = dict()
+    es_dict = dict()
+    en_dict = dict()
+    pt_dict = dict()
+
+    all_lang['eu'] = eu_dict
+    all_lang['ca'] = ca_dict
+    all_lang['gl'] = gl_dict
+    all_lang['es'] = es_dict
+    all_lang['en'] = en_dict
+    all_lang['pt'] = pt_dict
+
+    tweet = "abc!DeFg*"
+    tweet2 = "a$bcdefgab*cd*e"
+    f = open("OriginalDataSet/training-1.txt", "r")
+    training_set = f.readlines()
+    for line in training_set:
+        split = line.split("\t")
+        print(split)
+        lang = split[2]
+        tweet = split[3]
+
+        build_model(vocab, n, tweet, all_lang[lang])
+
+    print(all_lang)
+
+
+train_model(0, 3, 1)
