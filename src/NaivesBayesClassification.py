@@ -1,23 +1,23 @@
 import re
 
 
-def build_model(vocab, n, lang, tweet, all_lang, ngram_count):
+def build_model(vocab, n, lang, tweet, vocabulary, all_lang, ngram_count):
     for i in range(n - 1, len(tweet)):
         start_index = i - (n - 1)
-        n_gram = tweet[start_index:i + 1]
-        if validate_ngram(vocab, n_gram):
-            # Update counts for ngram
+        ngram = tweet[start_index:i + 1]
+        if valid_ngram(vocab, ngram):
+            # Check if ngram hasn't been added to vocabulary yet
+            if ngram not in vocabulary:
+                # Add ngram to vocabulary and initialize the value in all other languages
+                vocabulary.append(ngram)
+                for key in all_lang.keys():
+                    all_lang[key][ngram] = 0
+            # Update ngram count in given lang
             ngram_count[lang] = ngram_count.get(lang) + 1
-            count = all_lang[lang].get(n_gram)
-            if count is None:
-                all_lang[lang][n_gram] = 1
-                # print("Added", n_gram, "to dict")
-            else:
-                all_lang[lang][n_gram] = count + 1
-                # print("Updated", n_gram, "count", language_dict[n_gram])
+            all_lang[lang][ngram] = all_lang[lang].get(ngram) + 1
 
 
-def validate_ngram(vocab, ngram):
+def valid_ngram(vocab, ngram):
     lang_regex = ''
     if vocab == 0:
         return bool(re.match("^[a-z]+$", ngram))        # V=0 Lowercase and only letters
@@ -33,6 +33,7 @@ def train_model(vocab, n, smoothing):
     all_languages = dict()
     ngram_count = dict()
     language_count = dict()
+    vocabulary = []
 
     # Initialize dictionaries
     languages = ['eu', 'ca', 'gl', 'es', 'en', 'pt']
@@ -51,7 +52,7 @@ def train_model(vocab, n, smoothing):
         tweet = split[3]
 
         language_count[lang] = language_count.get(lang) + 1
-        build_model(vocab, n, lang, tweet, all_languages, ngram_count)
+        build_model(vocab, n, lang, tweet, vocabulary, all_languages, ngram_count)
 
     for lang in all_languages.keys():
         print(lang, language_count[lang], ngram_count[lang], all_languages[lang])
