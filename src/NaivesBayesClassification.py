@@ -1,18 +1,20 @@
 import re
 
 
-def build_model(vocab, n, tweet, language_dict):
+def build_model(vocab, n, lang, tweet, all_lang, ngram_count):
     for i in range(n - 1, len(tweet)):
         start_index = i - (n - 1)
         n_gram = tweet[start_index:i + 1]
         if validate_ngram(vocab, n_gram):
-            count = language_dict.get(n_gram)
+            # Update counts for ngram
+            ngram_count[lang] = ngram_count.get(lang) + 1
+            count = all_lang[lang].get(n_gram)
             if count is None:
-                language_dict[n_gram] = 1
-                print("Added", n_gram, "to dict")
+                all_lang[lang][n_gram] = 1
+                # print("Added", n_gram, "to dict")
             else:
-                language_dict[n_gram] = count + 1
-                print("Updated", n_gram, "count", language_dict[n_gram])
+                all_lang[lang][n_gram] = count + 1
+                # print("Updated", n_gram, "count", language_dict[n_gram])
 
 
 def validate_ngram(vocab, ngram):
@@ -28,33 +30,31 @@ def validate_ngram(vocab, ngram):
 
 
 def train_model(vocab, n, smoothing):
-    all_lang = dict()
-    eu_dict = dict()
-    ca_dict = dict()
-    gl_dict = dict()
-    es_dict = dict()
-    en_dict = dict()
-    pt_dict = dict()
+    all_languages = dict()
+    ngram_count = dict()
+    language_count = dict()
 
-    all_lang['eu'] = eu_dict
-    all_lang['ca'] = ca_dict
-    all_lang['gl'] = gl_dict
-    all_lang['es'] = es_dict
-    all_lang['en'] = en_dict
-    all_lang['pt'] = pt_dict
+    # Initialize dictionaries
+    languages = ['eu', 'ca', 'gl', 'es', 'en', 'pt']
+    for language in languages:
+        all_languages[language] = dict()
+        ngram_count[language] = 0
+        language_count[language] = 0
 
     tweet = "abc!DeFg*"
     tweet2 = "a$bcdefgab*cd*e"
-    f = open("OriginalDataSet/training-1.txt", "r")
+    f = open("OriginalDataSet/training-1.txt", "r", encoding="utf-8")
     training_set = f.readlines()
     for line in training_set:
         split = line.replace('\n', '').split("\t")
         lang = split[2]
         tweet = split[3]
 
-        build_model(vocab, n, tweet, all_lang[lang])
+        language_count[lang] = language_count.get(lang) + 1
+        build_model(vocab, n, lang, tweet, all_languages, ngram_count)
 
-    print(all_lang)
+    for lang in all_languages.keys():
+        print(lang, language_count[lang], ngram_count[lang], all_languages[lang])
 
 
-train_model(0, 3, 1)
+train_model(0, 1, 1)
