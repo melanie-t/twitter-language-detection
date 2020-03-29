@@ -1,18 +1,17 @@
 import re
 
 
-def create_n_grams(n, str, language_dict, language_regex):
-    for i in range(n-1, len(str)):
-        start_index = i-(n-1)
-        n_gram = str[start_index:i+1]
-        count = language_dict.get(n_gram)
-        # Check if
-        if re.match(language_regex, n_gram):
+def build_model(vocab, n, tweet, language_dict):
+    for i in range(n - 1, len(tweet)):
+        start_index = i - (n - 1)
+        n_gram = tweet[start_index:i + 1]
+        if validate_ngram(vocab, n_gram):
+            count = language_dict.get(n_gram)
             if count is None:
                 language_dict[n_gram] = 1
                 print("Added", n_gram, "to dict")
             else:
-                language_dict[n_gram] = count+1
+                language_dict[n_gram] = count + 1
                 print("Updated", n_gram, "count", language_dict[n_gram])
 
 
