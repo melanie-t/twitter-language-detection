@@ -19,6 +19,16 @@ def create_n_grams(n, str, language_dict, language_regex):
 en_dict = dict()
 v0_regex = "^[a-z]+$"          # V=0, lowercase and only letters
 v1_regex = "^[a-zA-Z]+$"       # V=1, Distinguish upper and lower case
+def validate_ngram(vocab, ngram):
+    lang_regex = ''
+    if vocab == 0:
+        return bool(re.match("^[a-z]+$", ngram))        # V=0 Lowercase and only letters
+    elif vocab == 1:
+        return bool(re.match("^[a-zA-Z]+$", ngram))     # V=1 Distinguish upper and lower case
+    elif vocab == 2:
+        return ngram.isalpha()                          # V=2 isalpha
+    else:
+        return False
 
 test = "abc!DeFg*"
 test2 = "a$bcdefgab*cd*e"
