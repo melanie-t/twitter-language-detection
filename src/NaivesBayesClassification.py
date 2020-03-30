@@ -6,6 +6,8 @@ def build_model(vocab, n, lang, tweet, vocabulary, all_lang, ngram_count):
     for i in range(n - 1, len(tweet)):
         start_index = i - (n - 1)
         ngram = tweet[start_index:i + 1]
+        if vocab == 0:
+            tweet = tweet.lower()
         if valid_ngram(vocab, ngram):
             # Check if ngram hasn't been added to vocabulary yet
             if ngram not in vocabulary:
@@ -61,8 +63,7 @@ def train_model(vocab, n, smoothing):
         print(lang, language_count[lang], ngram_count[lang], all_languages[lang])
 
 
-train_model(0, 1, 1)
-def vocab0(n):
+def build_vocab0(n):
     vocabulary = dict()
     a = 97
     if n == 1:
@@ -78,3 +79,48 @@ def vocab0(n):
                 for k in range(0, 26):
                     vocabulary[chr(a+i)+chr(a+j)+chr(a+k)] = 0
     return vocabulary
+
+
+def build_vocab1_2(n, isalpha):
+    vocabulary = dict()
+    A = 65
+    a = 97
+
+    if n == 1:
+        for i in range(0, 26):
+            vocabulary[chr(A+i)] = 0
+            vocabulary[chr(a+i)] = 0
+
+    elif n == 2:
+        for i in range(0, 26):
+            for j in range(0, 26):
+                vocabulary[chr(A+i)+chr(A+j)] = 0        # 1: All upper-case
+                vocabulary[chr(a+i)+chr(a+j)] = 0        # 2: All lower-case
+                if isalpha:
+                    vocabulary[chr(A+i)+chr(a+j)] = 0        # 3: First char upper, second char lower
+                    vocabulary[chr(a+i)+chr(A+j)] = 0        # 4: First char lower, second char upper
+
+    elif n == 3:
+        for i in range(0, 26):
+            for j in range(0, 26):
+                for k in range(0, 26):
+                    vocabulary[chr(A+i)+chr(A+j)+chr(A+k)] = 0       # 1: All upper case (UUU)
+                    vocabulary[chr(a+i)+chr(a+j)+chr(a+k)] = 0       # 5: All lower case (LLL)
+                    if isalpha:
+                        vocabulary[chr(a+i)+chr(a+j)+chr(A+k)] = 0       # 6: Lower, Lower, Upper (LLU)
+                        vocabulary[chr(A+i)+chr(A+j)+chr(a+k)] = 0       # 2: Upper, Upper, Lower (UUL)
+                        vocabulary[chr(A+i)+chr(a+j)+chr(A+k)] = 0       # 3: Upper, Lower, Upper (ULU)
+                        vocabulary[chr(a+i)+chr(A+j)+chr(A+k)] = 0       # 4: Lower, Upper, Upper (LUU)
+                        vocabulary[chr(a+i)+chr(A+j)+chr(a+k)] = 0       # 7: Lower, Upper, Lower (LUL)
+                        vocabulary[chr(A+i)+chr(a+j)+chr(a+k)] = 0       # 8: Upper, Lower, Lower (ULL)
+
+    return vocabulary
+
+
+# train_model(0, 1, 1)
+# vocab0(3)
+vocab = build_vocab1_2(1, False)
+print(vocab)
+print(len(vocab))
+
+
