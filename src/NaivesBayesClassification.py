@@ -62,3 +62,19 @@ def train_model(vocab, n, smoothing):
 
 
 train_model(0, 1, 1)
+def vocab0(n):
+    vocabulary = dict()
+    a = 97
+    if n == 1:
+        for i in range(0, 26):
+            vocabulary[chr(a+i)] = 0
+    elif n == 2:
+        for i in range(0, 26):
+            for j in range(0, 26):
+                vocabulary[chr(a+i)+chr(a+j)] = 0
+    elif n == 3:
+        for i in range(0, 26):
+            for j in range(0, 26):
+                for k in range(0, 26):
+                    vocabulary[chr(a+i)+chr(a+j)+chr(a+k)] = 0
+    return vocabulary
