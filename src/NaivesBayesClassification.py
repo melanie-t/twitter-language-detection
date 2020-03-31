@@ -2,9 +2,9 @@ import re
 import unicodedata
 
 
-def build_model(v, n, lang, tweet, all_lang, ngram_count):
+def build_model(v, n, lang, tweet, all_languages, ngram_count):
     # print(lang, tweet)
-    for i in range(n - 1, len(tweet)):
+    for i in range(n-1, len(tweet)):
         start_index = i - (n - 1)
         ngram = tweet[start_index:i + 1]
         if v == 0:
@@ -14,17 +14,17 @@ def build_model(v, n, lang, tweet, all_lang, ngram_count):
             # print(ngram)
             # For v=2, we only add ngrams to vocab as we see them in training set
             if v == 2:
-                count = all_lang[lang].get(ngram)
+                count = all_languages[lang].get(ngram)
                 if count is None:
-                    all_lang[lang][ngram] = 1       # Initialize new ngram
+                    all_languages[lang][ngram] = 1       # Initialize new ngram
+                    ngram_count[lang] = 1
                 else:
-                    all_lang[lang][ngram] = count + 1     # Update existing ngram count
+                    all_languages[lang][ngram] = count + 1     # Update existing
                     ngram_count[lang] = ngram_count.get(lang) + 1
-
             # For v=0, v=1, we have initialized each language dictionary
             else:
+                all_languages[lang][ngram] = all_languages[lang].get(ngram) + 1
                 ngram_count[lang] = ngram_count.get(lang) + 1
-                all_lang[lang][ngram] = all_lang[lang].get(ngram) + 1
 
 
 def valid_ngram(vocab, ngram):
@@ -71,9 +71,10 @@ def train_model(v, n, delta):
         tweet_count['total'] = tweet_count['total'] + 1
         build_model(v, n, lang, tweet, all_languages, ngram_count)
 
-    print("   {:>15s} {:>15s} {:>15s}".format("tweet_count", "ngram_count", "vocab_size"))
+    # smooth(n, delta, all_languages, ngram_count)
+    print("   {:>15s} {:>15s} {:>15s}".format("tweet_count", "ngram_total", "vocab_size"))
     for lang in all_languages.keys():
-        print(lang, "{:>15d} {:>15d} {:>15d}".format(tweet_count[lang], ngram_count[lang], len(all_languages[lang])))
+        print(lang, "{:>15.2f} {:>15.2f} {:>15.2f}".format(tweet_count[lang], ngram_count[lang], len(all_languages[lang])))
     print('------------------')
     print("total {:>12d}".format(tweet_count['total']))
 
@@ -128,3 +129,4 @@ def build_vocab1(n):
                     vocabulary[chr(A+i)+chr(a+j)+chr(a+k)] = 0       # 8: Upper, Lower, Lower (ULL)
 
     return vocabulary
+
