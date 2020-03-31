@@ -130,3 +130,13 @@ def build_vocab1(n):
 
     return vocabulary
 
+
+def smooth(n, delta, all_languages, ngram_count):
+    for lang in all_languages.keys():
+        for ngram in all_languages[lang].keys():
+            all_languages[lang][ngram] = all_languages[lang].get(ngram) + delta
+        vocab_size = len(all_languages[lang])
+        ngram_count[lang] = ngram_count.get(lang) + delta*vocab_size**n
+
+
+train_model(v=0, n=2, delta=0.5)
