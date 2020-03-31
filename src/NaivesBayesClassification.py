@@ -11,9 +11,7 @@ def build_model(v, n, lang, tweet, all_lang, ngram_count):
             tweet = tweet.lower()
 
         if valid_ngram(v, ngram):
-            # Update ngram count in given lang
             # print(ngram)
-
             # For v=2, we only add ngrams to vocab as we see them in training set
             if v == 2:
                 count = all_lang[lang].get(ngram)
@@ -21,12 +19,12 @@ def build_model(v, n, lang, tweet, all_lang, ngram_count):
                     all_lang[lang][ngram] = 1       # Initialize new ngram
                 else:
                     all_lang[lang][ngram] = count + 1     # Update existing ngram count
+                    ngram_count[lang] = ngram_count.get(lang) + 1
 
             # For v=0, v=1, we have initialized each language dictionary
             else:
                 ngram_count[lang] = ngram_count.get(lang) + 1
                 all_lang[lang][ngram] = all_lang[lang].get(ngram) + 1
-            # print("\t Updated ", ngram, all_lang[lang][ngram])
 
 
 def valid_ngram(vocab, ngram):
@@ -60,8 +58,9 @@ def train_model(v, n, smoothing):
         all_languages[language] = vocabulary.copy()
         ngram_count[language] = 0
         language_count[language] = 0
+        language_count['total'] = 0
 
-    f = open("OriginalDataSet/training-1.txt", "r", encoding="utf-8")
+    f = open("OriginalDataSet/training-tweets.txt", "r", encoding="utf-8")
     training_set = f.readlines()
     for line in training_set:
         split = line.split("\t")
@@ -69,10 +68,13 @@ def train_model(v, n, smoothing):
         tweet = split[3]
 
         language_count[lang] = language_count.get(lang) + 1
+        language_count['total'] = language_count['total'] + 1
         build_model(v, n, lang, tweet, all_languages, ngram_count)
 
     for lang in all_languages.keys():
-        print(lang, language_count[lang], ngram_count[lang])
+        print(lang, language_count[lang], ngram_count[lang], all_languages[lang])
+
+    print("# ", language_count['total'])
 
 
 def build_vocab0(n):
@@ -125,5 +127,6 @@ def build_vocab1_2(n):
                     vocabulary[chr(A+i)+chr(a+j)+chr(a+k)] = 0       # 8: Upper, Lower, Lower (ULL)
 
     return vocabulary
+
 
 train_model(2, 1, 0)
