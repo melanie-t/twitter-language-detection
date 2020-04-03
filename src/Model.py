@@ -110,27 +110,29 @@ class Model:
             NaN = "NaN"
             if TP+FP > 0:
                 P = TP/(TP+FP)
-                metrics['Precision'].append(P)
             else:
-                metrics['Precision'].append(np.nan)
+                P = np.nan
+            metrics['Precision'].append(P)
 
             # Calculate recall TP/(TP+FN)
             if TP+FN > 0:
                 R = TP/(TP+FN)
-                metrics['Recall'].append(R)
             else:
-                metrics['Recall'].append(np.nan)
+                R = np.nan
+            metrics['Recall'].append(R)
 
             # Calculate F1 measure (B=1, precision and recall have same importance)
             # F = (B^2 + 1)PR/(B^2P+R)
             B = 1
             if (pow(B, 2)*P+R) > 0:
                 F1 = (pow(B, 2) + 1)*P*R/(pow(B, 2)*P+R)
-                metrics['F1'].append(F1)
-                F1_total += F1
-                F1_weighted_total += F1 * self.language_probabilities[lang]
             else:
-                metrics['F1'].append(np.nan)
+                F1 = np.nan
+            metrics['F1'].append(F1)
+
+            # Add F1 measure to F1_total and F1_weighted_total
+            F1_total += F1
+            F1_weighted_total += F1 * self.language_probabilities[lang]
 
         evaluation_file.write(f"{metrics['Acc']:.4f}\r")
 
