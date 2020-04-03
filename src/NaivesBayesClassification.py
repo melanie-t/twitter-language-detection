@@ -43,7 +43,7 @@ def valid_ngram(vocab, ngram):
         return False
 
 
-def train_model(v, n, delta):
+def train_model(v, n, delta, training_path):
     ngram_frequency = dict()  # Contains the frequency count of each ngram for each language
     ngram_total = dict()    # Contains the number of ngrams in each language model
     tweet_count = dict()    # Contains the number of tweets for each language
@@ -66,8 +66,9 @@ def train_model(v, n, delta):
 
     # We load the training data and process each line and pass the values into build_model function
     # which will break down the tweet into ngrams and insert into the appropriate language model
-    f = open("OriginalDataSet/training-1.txt", "r", encoding="utf-8")
+    f = open(training_path, "r", encoding="utf-8")
     training_set = f.readlines()
+    print("{:>27s}".format("...Begin Training..."))
     for line in training_set:
         split = line.replace("\n", "").split("\t")
         lang = split[2]
@@ -81,17 +82,15 @@ def train_model(v, n, delta):
     print("   {:>30s} {:>30s} {:>30s}".format("tweet_count", "ngram_total", "vocab_size"))
     for lang in ngram_frequency.keys():
         print(lang, "{:>30.2f} {:>30.2f} {:>30.2f}".format(tweet_count[lang], ngram_total[lang], len(ngram_frequency[lang])))
-    print("total {:>27d}\n".format(tweet_count['total']))
-
-    for lang in ngram_frequency.keys():
-        print(lang, ngram_frequency[lang])
+    print("total {:>27d}".format(tweet_count['total']))
 
     language_probabilities = calculate_language_probabilities(ngram_frequency, tweet_count)
     ngram_probabilities = calculate_ngram_probabilities(ngram_frequency, ngram_total)
 
-    print('language probabilities', language_probabilities)
-    print('ngram probabilities', ngram_probabilities)
+    # print('language probabilities', language_probabilities)
+    # print('ngram probabilities', ngram_probabilities)
 
+    print("{:>31s}".format("...Completed Training...\n"))
     return language_probabilities, ngram_probabilities
 
 
@@ -156,16 +155,16 @@ def smooth(n, delta, ngram_frequency_count, ngram_total):
 
 
 # calculate_language_probabilities
-# This function calculates the probabilities of each language using log with base 10
+# This function calculates the probabilities of each language
 def calculate_language_probabilities(ngram_frequency, tweet_count):
     lang_probabilities = dict()
     for lang in ngram_frequency.keys():
-        lang_probabilities[lang] = log(tweet_count[lang]/tweet_count['total'], 10)
+        lang_probabilities[lang] = tweet_count[lang]/tweet_count['total']
     return lang_probabilities
 
 
 # calculate_ngram_probabilities function
-# This function calculates the probabilities of each ngram in the language using log with base 10
+# This function calculates the probabilities of each ngram in the language
 def calculate_ngram_probabilities(ngram_frequency, ngram_total):
     ngram_probabilities = dict()
     for lang in ngram_frequency.keys():
@@ -174,29 +173,19 @@ def calculate_ngram_probabilities(ngram_frequency, ngram_total):
             if ngram_total.get(lang) != 0:
                 for ngram in ngram_frequency[lang].keys():
                     ngram_count = ngram_frequency[lang].get(ngram)
-                    ngram_probabilities[lang][ngram] = log(ngram_count/total_ngrams, 10)
+                    ngram_probabilities[lang][ngram] = ngram_count/total_ngrams
     return ngram_probabilities
 
 
 def calculate_score(tweet, v, n, lang_probability, ngram_probability):
-    score = lang_probability    # Initialize score by adding probability of language first
+    score = log(lang_probability, 10)    # Initialize score by adding probability of language first
     for i in range(n-1, len(tweet)):
         start_index = i - (n - 1)
         ngram = tweet[start_index:i + 1]
         if valid_ngram(v, ngram):
             ngram_score = ngram_probability.get(ngram)
             if ngram_score is not None:
-                score += ngram_score
+                score += log(ngram_score, 10)
             else:
-
+                return 0
     return score
-
-v=0
-n=2
-tweet="felicidad intermitente"
-language_probabilities, ngram_probabilities = train_model(v=0, n=2, delta=0.5)
-
-for language in language_probabilities.keys():
-    score = calculate_score(tweet, v, n, language_probabilities.get(language), ngram_probabilities.get(language))
-    print(language, score)
-
