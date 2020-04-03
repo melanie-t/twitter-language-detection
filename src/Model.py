@@ -1,4 +1,5 @@
 from src.NaivesBayesClassification import train_model, calculate_score
+import numpy as np
 
 
 class Model:
@@ -6,6 +7,7 @@ class Model:
         self.v = v
         self.n = n
         self.delta = delta
+        print(f"\n●●● Creating Model V={self.v} n={self.n} d={self.delta} ●●●")
         self.language_probabilities, self.ngram_probabilities = train_model(self.v, self.n, self.delta, training_path)
 
     def predict_language(self, tweet):
@@ -18,11 +20,11 @@ class Model:
         return predicted
 
     def test(self, test_path):
+        print(f"\n●●● Testing Model V={self.v} n={self.n} d={self.delta} ●●●")
         # Open test file
         test_set = open(test_path, "r", encoding="utf-8")
         # Create trace file
-        trace = open("trace_{}_{}_{}.txt".format(self.v, self.n, self.delta), "w", encoding="utf-8")
-        print("{:>27s}".format("...Begin Testing..."))
+        trace = open(f"trace_{self.v}_{self.n}_{self.delta}.txt", "w", encoding="utf-8")
         for line in test_set.readlines():
             split = line.replace("\n", "").split("\t")
             tweet_id = split[0]
@@ -35,11 +37,12 @@ class Model:
                 label = "wrong"
             # Scientific Notation
             # Source: https://kite.com/python/answers/how-to-print-a-number-in-scientific-notation-in-python
-            result = "{}  {}  {: .2E}  {}  {}\r".format(tweet_id, predicted_language, score, language, label)
+            result = f"{tweet_id}  {predicted_language}  {score: .2E}  {language}  {label}\r"
             print(result)
             trace.write(result)
         trace.close()
-        print("{:>30s}".format("...Completed Testing..."))
+        print("...Completed Testing...")
+
     def evaluate(self):
         print(f"\n●●● Evaluating Model V={self.v} n={self.n} d={self.delta} ●●●")
         # Create evaluation file
@@ -154,5 +157,7 @@ class Model:
         print(f"{'F1':15s}{metrics['F1']}")
         print(f"{'Macro-F1':15s}{macro_F1:>.4f}")
         print(f"{'Weighted-F1':15s}{weighted_F1:>.4f}")
+
+
 
 

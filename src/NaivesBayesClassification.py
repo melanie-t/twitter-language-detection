@@ -79,10 +79,10 @@ def train_model(v, n, delta, training_path):
         build_model(v, n, lang, tweet, ngram_frequency, ngram_total)
 
     smooth(n, delta, ngram_frequency, ngram_total)
-    print("   {:>30s} {:>30s} {:>30s}".format("tweet_count", "ngram_total", "vocab_size"))
+    print(f"   {'tweet_count':>30s} {'ngram_total':>30s} {'vocab_size':>30s}")
     for lang in ngram_frequency.keys():
-        print(lang, "{:>30.2f} {:>30.2f} {:>30.2f}".format(tweet_count[lang], ngram_total[lang], len(ngram_frequency[lang])))
-    print("total {:>27d}".format(tweet_count['total']))
+        print(f"{lang} {tweet_count[lang]:>30.2f} {ngram_total[lang]:>30.2f} {len(ngram_frequency[lang]):>30.2f}")
+    print(f"total {tweet_count['total']:>27d}")
 
     language_probabilities = calculate_language_probabilities(ngram_frequency, tweet_count)
     ngram_probabilities = calculate_ngram_probabilities(ngram_frequency, ngram_total)
