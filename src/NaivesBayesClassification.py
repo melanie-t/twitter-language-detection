@@ -70,13 +70,14 @@ def train_model(v, n, delta, training_path):
     training_set = f.readlines()
     # print("{:>27s}".format("...Begin Training..."))
     for line in training_set:
-        split = line.replace("\n", "").split("\t")
-        lang = split[2]
-        tweet = split[3]
+        if line and not line.isspace():
+            split = line.replace("\n", "").split("\t")
+            lang = split[2]
+            tweet = split[3]
 
-        tweet_count[lang] = tweet_count.get(lang) + 1
-        tweet_count['total'] = tweet_count['total'] + 1
-        build_model(v, n, lang, tweet, ngram_frequency, ngram_total)
+            tweet_count[lang] = tweet_count.get(lang) + 1
+            tweet_count['total'] = tweet_count['total'] + 1
+            build_model(v, n, lang, tweet, ngram_frequency, ngram_total)
 
     smooth(n, delta, ngram_frequency, ngram_total)
     print(f"   {'tweet_count':>30s} {'ngram_total':>30s} {'vocab_size':>30s}")

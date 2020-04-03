@@ -26,7 +26,9 @@ class Model:
         # Create trace file
         trace = open(f"trace_{self.v}_{self.n}_{self.delta}.txt", "w", encoding="utf-8")
         for line in test_set.readlines():
-            if line != '':
+            # Checking if string is empty
+            # Source: https://www.geeksforgeeks.org/python-program-to-check-if-string-is-empty-or-not/)
+            if line and not line.isspace():
                 split = line.replace("\n", "").split("\t")
                 tweet_id = split[0]
                 language = split[2]
@@ -68,29 +70,30 @@ class Model:
             metrics['total'] = 0    # Keeps track correct+wrong for accuracy measure
 
         for line in trace_file.readlines():
-            split = line.replace("\n", "").split("  ")
-            # Format of trace after split
-            # [twitter_id, predicted_lang, score, actual_lang, 'correct/wrong']
+            if line and not line.isspace():
+                split = line.replace("\n", "").split("  ")
+                # Format of trace after split
+                # [twitter_id, predicted_lang, score, actual_lang, 'correct/wrong']
 
-            predicted_language = split[1]
-            actual_language = split[3]
-            if split[4] == 'correct':
-                metrics['correct'] = metrics.get('correct') + 1
-                metrics['total'] = metrics.get('total') + 1
+                predicted_language = split[1]
+                actual_language = split[3]
+                if split[4] == 'correct':
+                    metrics['correct'] = metrics.get('correct') + 1
+                    metrics['total'] = metrics.get('total') + 1
 
-                # The predicted_language is a True Positive
-                metrics[predicted_language]['TP'] = metrics[predicted_language].get('TP') + 1
-                # We don't need to keep track of True Negatives, but it would be that
-                # all other languages (except predicted language) increment in True Negative
+                    # The predicted_language is a True Positive
+                    metrics[predicted_language]['TP'] = metrics[predicted_language].get('TP') + 1
+                    # We don't need to keep track of True Negatives, but it would be that
+                    # all other languages (except predicted language) increment in True Negative
 
-            else:   # label = wrong
-                metrics['total'] = metrics.get('total') + 1
+                else:   # label = wrong
+                    metrics['total'] = metrics.get('total') + 1
 
-                # The predicted language is identifying a False Positive
-                metrics[predicted_language]['FP'] = metrics[predicted_language].get('FP') + 1
+                    # The predicted language is identifying a False Positive
+                    metrics[predicted_language]['FP'] = metrics[predicted_language].get('FP') + 1
 
-                # The actual language has a False Negative
-                metrics[actual_language]['FN'] = metrics[actual_language].get('FN') + 1
+                    # The actual language has a False Negative
+                    metrics[actual_language]['FN'] = metrics[actual_language].get('FN') + 1
 
         # Calculate accuracy
         correct = metrics.get('correct')
@@ -136,29 +139,41 @@ class Model:
 
         evaluation_file.write(f"{metrics['Acc']:.4f}\r")
 
+        precision_formatted = ''
+        recall_formatted = ''
+        f1_formatted = ''
+
         for val in metrics['Precision']:
             evaluation_file.write(f"{val:.4f}  ")
+            precision_formatted = f"{precision_formatted}{val:>15.4f}"
         evaluation_file.write("\r")
 
         for val in metrics['Recall']:
             evaluation_file.write(f"{val:.4f}  ")
+            recall_formatted = f"{recall_formatted}{val:>15.4f}"
         evaluation_file.write("\r")
 
         for val in metrics['F1']:
             evaluation_file.write(f"{val:.4f}  ")
+            f1_formatted = f"{f1_formatted}{val:>15.4f}"
         evaluation_file.write("\r")
+
+        languages_formatted = ''
+        for key in self.language_probabilities.keys():
+            languages_formatted = f"{languages_formatted}{key:>15s}"
 
         macro_F1 = F1_total/6
         weighted_F1 = F1_weighted_total/6
 
         evaluation_file.write(f"{macro_F1:>.4f}  {weighted_F1:>.4f}\r")
-        print(f"{'Accuracy':15s}{metrics['Acc']:.4f}")
-        print(f"{'Languages':15s}{self.language_probabilities.keys()}")
-        print(f"{'Precision':15s}{metrics['Precision']}")
-        print(f"{'Recall':15s}{metrics['Recall']}")
-        print(f"{'F1':15s}{metrics['F1']}")
-        print(f"{'Macro-F1':15s}{macro_F1:>.4f}")
-        print(f"{'Weighted-F1':15s}{weighted_F1:>.4f}")
+
+        print(f"{'Languages':15s}{languages_formatted}")
+        print(f"{'Precision':15s}{precision_formatted}")
+        print(f"{'Recall':15s}{recall_formatted}")
+        print(f"{'F1':15s}{f1_formatted}")
+        print(f"{'Accuracy':15s}{metrics['Acc']: .4f}")
+        print(f"{'Macro-F1':15s}{macro_F1:> .4f}")
+        print(f"{'Weighted-F1':15s}{weighted_F1:> .4f}")
 
 
 
