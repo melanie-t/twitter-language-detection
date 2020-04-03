@@ -26,20 +26,21 @@ class Model:
         # Create trace file
         trace = open(f"trace_{self.v}_{self.n}_{self.delta}.txt", "w", encoding="utf-8")
         for line in test_set.readlines():
-            split = line.replace("\n", "").split("\t")
-            tweet_id = split[0]
-            language = split[2]
-            tweet = split[3]
-            score, predicted_language = self.predict_language(tweet)
-            if predicted_language == language:
-                label = "correct"
-            else:
-                label = "wrong"
-            # Scientific Notation
-            # Source: https://kite.com/python/answers/how-to-print-a-number-in-scientific-notation-in-python
-            result = f"{tweet_id}  {predicted_language}  {score: .2E}  {language}  {label}\r"
-            print(result)
-            trace.write(result)
+            if line != '':
+                split = line.replace("\n", "").split("\t")
+                tweet_id = split[0]
+                language = split[2]
+                tweet = split[3]
+                score, predicted_language = self.predict_language(tweet)
+                if predicted_language == language:
+                    label = "correct"
+                else:
+                    label = "wrong"
+                # Scientific Notation
+                # Source: https://kite.com/python/answers/how-to-print-a-number-in-scientific-notation-in-python
+                result = f"{tweet_id}  {predicted_language}  {score: .2E}  {language}  {label}\r"
+                print(result)
+                trace.write(result)
         trace.close()
         print("...Completed Testing...")
 
@@ -126,13 +127,12 @@ class Model:
             B = 1
             if (pow(B, 2)*P+R) > 0:
                 F1 = (pow(B, 2) + 1)*P*R/(pow(B, 2)*P+R)
+                # Add F1 measure to F1_total and F1_weighted_total
+                F1_total += F1
+                F1_weighted_total += F1 * self.language_probabilities[lang]
             else:
                 F1 = np.nan
             metrics['F1'].append(F1)
-
-            # Add F1 measure to F1_total and F1_weighted_total
-            F1_total += F1
-            F1_weighted_total += F1 * self.language_probabilities[lang]
 
         evaluation_file.write(f"{metrics['Acc']:.4f}\r")
 

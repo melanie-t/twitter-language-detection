@@ -20,7 +20,7 @@ def main():
     while True:
         print("Enter Test Set file path: ", end="")
         test_set = input()
-        test_set = "OriginalDataSet/test1.txt"
+        test_set = "OriginalDataSet/test-tweets-given.txt"
         # Source: https://www.guru99.com/python-check-if-file-exists.html
         if path.exists(test_set):
             print("\tOK: Test File Accepted")
