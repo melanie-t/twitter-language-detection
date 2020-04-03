@@ -68,7 +68,7 @@ def train_model(v, n, delta, training_path):
     # which will break down the tweet into ngrams and insert into the appropriate language model
     f = open(training_path, "r", encoding="utf-8")
     training_set = f.readlines()
-    print("{:>27s}".format("...Begin Training..."))
+    # print("{:>27s}".format("...Begin Training..."))
     for line in training_set:
         split = line.replace("\n", "").split("\t")
         lang = split[2]
@@ -90,7 +90,7 @@ def train_model(v, n, delta, training_path):
     # print('language probabilities', language_probabilities)
     # print('ngram probabilities', ngram_probabilities)
 
-    print("{:>31s}".format("...Completed Training...\n"))
+    # print("{:>31s}".format("...Completed Training...\n"))
     return language_probabilities, ngram_probabilities
 
 
