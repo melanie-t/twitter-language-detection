@@ -22,7 +22,7 @@ class Model:
         test_set = open(test_path, "r", encoding="utf-8")
         # Create trace file
         trace = open("trace_{}_{}_{}.txt".format(self.v, self.n, self.delta), "w", encoding="utf-8")
-        # print("{:>27s}".format("...Begin Testing..."))
+        print("{:>27s}".format("...Begin Testing..."))
         for line in test_set.readlines():
             split = line.replace("\n", "").split("\t")
             tweet_id = split[0]
@@ -35,10 +35,10 @@ class Model:
                 label = "wrong"
             # Scientific Notation
             # Source: https://kite.com/python/answers/how-to-print-a-number-in-scientific-notation-in-python
-            result = "{}  {}  {:.2E}  {}  {}\r".format(tweet_id, predicted_language, score, language, label)
+            result = "{}  {}  {: .2E}  {}  {}\r".format(tweet_id, predicted_language, score, language, label)
             print(result)
             trace.write(result)
         trace.close()
-        # print("{:>30s}".format("...Completed Testing..."))
+        print("{:>30s}".format("...Completed Testing..."))
 
 
