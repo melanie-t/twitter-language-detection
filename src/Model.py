@@ -22,7 +22,7 @@ class Model:
         test_set = open(test_path, "r", encoding="utf-8")
         # Create trace file
         trace = open("trace_{}_{}_{}.txt".format(self.v, self.n, self.delta), "w", encoding="utf-8")
-        print("{:>27s}".format("...Begin Testing..."))
+        # print("{:>27s}".format("...Begin Testing..."))
         for line in test_set.readlines():
             split = line.replace("\n", "").split("\t")
             tweet_id = split[0]
@@ -39,6 +39,6 @@ class Model:
             print(result)
             trace.write(result)
         trace.close()
-        print("{:>30s}".format("...Completed Testing..."))
+        # print("{:>30s}".format("...Completed Testing..."))
 
 
