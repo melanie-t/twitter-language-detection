@@ -38,6 +38,7 @@ def main():
     create_directory("output/")
 
     # Initialize models
+    byom = Model(v=3, n=3, delta=0.1)
     model_v0_n1_d0 = Model(v=0, n=1, delta=0)
     model_v1_n2_d05 = Model(v=1, n=2, delta=0.5)
     model_v1_n3_d1 = Model(v=1, n=3, delta=1)
@@ -48,21 +49,25 @@ def main():
     model_v1_n2_d05.train(training_set)
     model_v1_n3_d1.train(training_set)
     model_v2_n2_d03.train(training_set)
+    byom.train(training_set)
 
     # Test models using test set
     model_v0_n1_d0.test(test_set)
     model_v1_n2_d05.test(test_set)
     model_v1_n3_d1.test(test_set)
     model_v2_n2_d03.test(test_set)
+    byom.test(test_set)
 
     # Evaluate models
     model_v0_n1_d0.evaluate()
     model_v1_n2_d05.evaluate()
     model_v1_n3_d1.evaluate()
     model_v2_n2_d03.evaluate()
+    byom.evaluate()
 
 
 if __name__ == "__main__":
     main()
+
 
 

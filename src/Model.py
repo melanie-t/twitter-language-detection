@@ -1,4 +1,4 @@
-from src.NaivesBayesClassification import train_model, calculate_score
+from src.NaivesBayesClassification import train_model, calculate_score, pre_process_tweet
 import numpy as np
 
 
@@ -34,10 +34,10 @@ class Model:
             # Checking if string is empty
             # Source: https://www.geeksforgeeks.org/python-program-to-check-if-string-is-empty-or-not/)
             if line and not line.isspace():
-                split = line.replace("\n", "").split("\t")
+                split = line.split("\t")
                 tweet_id = split[0]
                 language = split[2]
-                tweet = split[3]
+                tweet = pre_process_tweet(self.v, split[3])
                 score, predicted_language = self.predict_language(tweet)
                 if predicted_language == language:
                     label = "correct"
@@ -79,12 +79,11 @@ class Model:
                 split = line.replace("\n", "").split("  ")
                 # Format of trace after split
                 # [twitter_id, predicted_lang, score, actual_lang, 'correct/wrong']
-
+                metrics['total'] = metrics.get('total') + 1
                 predicted_language = split[1]
                 actual_language = split[3]
                 if split[4] == 'correct':
                     metrics['correct'] = metrics.get('correct') + 1
-                    metrics['total'] = metrics.get('total') + 1
 
                     # The predicted_language is a True Positive
                     metrics[predicted_language]['TP'] = metrics[predicted_language].get('TP') + 1
@@ -92,8 +91,6 @@ class Model:
                     # all other languages (except predicted language) increment in True Negative
 
                 else:   # label = wrong
-                    metrics['total'] = metrics.get('total') + 1
-
                     # The predicted language is identifying a False Positive
                     metrics[predicted_language]['FP'] = metrics[predicted_language].get('FP') + 1
 
@@ -166,8 +163,9 @@ class Model:
         for key in self.language_probabilities.keys():
             languages_formatted = f"{languages_formatted}{key:>15s}"
 
-        macro_F1 = F1_total/6
-        weighted_F1 = F1_weighted_total/6
+        number_of_languages = len(self.language_probabilities.keys())
+        macro_F1 = F1_total/number_of_languages
+        weighted_F1 = F1_weighted_total/number_of_languages
 
         evaluation_file.write(f"{macro_F1:>.4f}  {weighted_F1:>.4f}\r")
 
