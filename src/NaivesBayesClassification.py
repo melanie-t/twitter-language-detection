@@ -13,22 +13,23 @@ def build_model(v, n, lang, tweet, ngram_frequency, ngram_total):
             tweet = tweet.lower()
 
         if valid_ngram(v, ngram):
-            character = ngram[0]
             # print(ngram)
             # For v=2, we only add character occurences and ngrams to vocab as we see them in training set
             if v == 2:
                 count = ngram_frequency[lang].get(ngram)
                 if count is None:   # Initialize new ngram
-                    ngram_frequency[lang][ngram] = 1
-                    ngram_total[lang] = 1
-                else:
-                    ngram_frequency[lang][ngram] = count + 1     # Update existing
-                    ngram_total[lang] = ngram_total.get(lang) + 1
-            # For v=0, v=1, we have already initialized each language dictionary
-            else:
-                # character_count[lang][character] = character_count[lang].get(character) + 1
-                ngram_frequency[lang][ngram] = ngram_frequency[lang].get(ngram) + 1
-                ngram_total[lang] = ngram_total.get(lang) + 1
+                    for key in ngram_frequency.keys():
+                        # Add new ngram to all language dictionaries
+                        ngram_frequency[key][ngram] = 0
+
+            ngram_frequency[lang][ngram] = ngram_frequency[lang].get(ngram) + 1     # Update existing
+            ngram_total[lang] = ngram_total.get(lang) + 1
+
+            # # For v=0, v=1, we have already initialized each language dictionary
+            # else:
+            #     # character_count[lang][character] = character_count[lang].get(character) + 1
+            #     ngram_frequency[lang][ngram] = ngram_frequency[lang].get(ngram) + 1
+            #     ngram_total[lang] = ngram_total.get(lang) + 1
 
 
 def valid_ngram(vocab, ngram):
@@ -79,7 +80,7 @@ def train_model(v, n, delta, training_path):
             tweet_count['total'] = tweet_count['total'] + 1
             build_model(v, n, lang, tweet, ngram_frequency, ngram_total)
 
-    smooth(n, delta, ngram_frequency, ngram_total)
+    smooth(delta, ngram_frequency, ngram_total)
     print(f"   {'tweet_count':>30s} {'ngram_total':>30s} {'vocab_size':>30s}")
     for lang in ngram_frequency.keys():
         print(f"{lang} {tweet_count[lang]:>30.2f} {ngram_total[lang]:>30.2f} {len(ngram_frequency[lang]):>30.2f}")
@@ -147,12 +148,64 @@ def build_vocab1(n):
     return vocabulary
 
 
-def smooth(n, delta, ngram_frequency_count, ngram_total):
+def build_vocab3(n):
+    vocabulary = dict()
+    if n == 1:
+        vocab = open("vocabulary_n1.txt", "w", encoding="utf-8")
+        for i in range(0, 591):
+            char = chr(i)
+            if char.isalpha():
+                print(char)
+                vocab.write(char + "\r")
+                vocabulary[char] = 0
+
+    elif n == 2:
+        vocab = open("vocabulary_n2.txt", "w", encoding="utf-8")
+        for i in range(0, 591):
+            for j in range(0, 591):
+                char = chr(i)+chr(j)
+                if char.isalpha():
+                    print(char)
+                    vocab.write(char + "\r")
+                    vocabulary[char] = 0
+
+    elif n == 3:
+        vocab = open("vocabulary_n3.txt", "w", encoding="utf-8")
+        bigrams = []
+        for i in range(0, 591):
+            for j in range(0, 591):
+                char = chr(i)+chr(j)
+                if char.isalpha():
+                    print(char)
+                    vocab.write(char + "\r")
+                    bigrams.append(char)
+
+        for bigram in bigrams:
+            for i in range(0, 591):
+                char = chr(i)+bigram
+                if char.isalpha():
+                    print(i, "|", char)
+                    vocab.write(char + "\r")
+                    vocabulary[char] = 0
+
+        # for i in range(0, 591):
+        #     for j in range(0, 591):
+        #         for k in range(0, 591):
+        #             char = chr(i)+chr(j)+chr(k)
+        #             if char.isalpha():
+        #                 print(char)
+        #                 vocab.write(char + "\r")
+        #                 vocabulary[chr(i)+chr(j)+chr(k)] = 0
+
+    return vocabulary
+
+
+def smooth(delta, ngram_frequency_count, ngram_total):
     for lang in ngram_frequency_count.keys():
         for ngram in ngram_frequency_count[lang].keys():
             ngram_frequency_count[lang][ngram] = ngram_frequency_count[lang].get(ngram) + delta
         vocab_size = len(ngram_frequency_count[lang])
-        ngram_total[lang] = ngram_total.get(lang) + delta * vocab_size ** n
+        ngram_total[lang] = ngram_total.get(lang) + delta * vocab_size
 
 
 # calculate_language_probabilities
@@ -169,12 +222,12 @@ def calculate_language_probabilities(ngram_frequency, tweet_count):
 def calculate_ngram_probabilities(ngram_frequency, ngram_total):
     ngram_probabilities = dict()
     for lang in ngram_frequency.keys():
-            total_ngrams = ngram_total.get(lang)
-            ngram_probabilities[lang] = dict()
-            if ngram_total.get(lang) != 0:
-                for ngram in ngram_frequency[lang].keys():
-                    ngram_count = ngram_frequency[lang].get(ngram)
-                    ngram_probabilities[lang][ngram] = ngram_count/total_ngrams
+        total_ngrams = ngram_total.get(lang)
+        ngram_probabilities[lang] = dict()
+        if ngram_total.get(lang) != 0:
+            for ngram in ngram_frequency[lang].keys():
+                ngram_count = ngram_frequency[lang].get(ngram)
+                ngram_probabilities[lang][ngram] = ngram_count/total_ngrams
     return ngram_probabilities
 
 
@@ -185,8 +238,10 @@ def calculate_score(tweet, v, n, lang_probability, ngram_probability):
         ngram = tweet[start_index:i + 1]
         if valid_ngram(v, ngram):
             ngram_score = ngram_probability.get(ngram)
-            if ngram_score is not None:
+            if ngram_score is not None and ngram_score != 0:
                 score += log(ngram_score, 10)
             else:
                 return 0
     return score
+
+

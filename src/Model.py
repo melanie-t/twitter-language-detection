@@ -3,11 +3,16 @@ import numpy as np
 
 
 class Model:
-    def __init__(self, v, n, delta, training_path):
+    def __init__(self, v, n, delta):
         self.v = v
         self.n = n
         self.delta = delta
-        print(f"\n●●● Creating Model V={self.v} n={self.n} d={self.delta} ●●●")
+        print(f"●●● Initialize Model V={self.v} n={self.n} d={self.delta} ●●●")
+        self.language_probabilities = dict()
+        self.ngram_probabilities = dict()
+
+    def train(self, training_path):
+        print(f"\n●●● Training Model V={self.v} n={self.n} d={self.delta} ●●●")
         self.language_probabilities, self.ngram_probabilities = train_model(self.v, self.n, self.delta, training_path)
 
     def predict_language(self, tweet):
@@ -24,7 +29,7 @@ class Model:
         # Open test file
         test_set = open(test_path, "r", encoding="utf-8")
         # Create trace file
-        trace = open(f"trace_{self.v}_{self.n}_{self.delta}.txt", "w", encoding="utf-8")
+        trace = open(f"output/trace_{self.v}_{self.n}_{self.delta}.txt", "w", encoding="utf-8")
         for line in test_set.readlines():
             # Checking if string is empty
             # Source: https://www.geeksforgeeks.org/python-program-to-check-if-string-is-empty-or-not/)
@@ -41,7 +46,7 @@ class Model:
                 # Scientific Notation
                 # Source: https://kite.com/python/answers/how-to-print-a-number-in-scientific-notation-in-python
                 result = f"{tweet_id}  {predicted_language}  {score: .2E}  {language}  {label}\r"
-                print(result)
+                # print(result)
                 trace.write(result)
         trace.close()
         print("...Completed Testing...")
@@ -49,9 +54,9 @@ class Model:
     def evaluate(self):
         print(f"\n●●● Evaluating Model V={self.v} n={self.n} d={self.delta} ●●●")
         # Create evaluation file
-        evaluation_file = open(f"eval_{self.v}_{self.n}_{self.delta}.txt", "w", encoding="utf-8")
+        evaluation_file = open(f"output/eval_{self.v}_{self.n}_{self.delta}.txt", "w", encoding="utf-8")
         # Open trace file to evaluate
-        trace_file = open(f"trace_{self.v}_{self.n}_{self.delta}.txt", "r", encoding="utf-8")
+        trace_file = open(f"output/trace_{self.v}_{self.n}_{self.delta}.txt", "r", encoding="utf-8")
 
         metrics = dict()
         metrics['correct'] = 0
@@ -103,7 +108,7 @@ class Model:
 
         F1_total = 0  # Will be used to calculate the macro-F1
         F1_weighted_total = 0  # Will be used to calculate weighted average F1
-
+        F1_languages_accounted = 0  # The number of languages with F1 without NaN
         for lang in self.language_probabilities.keys():
             language_metric = metrics.get(lang)
             TP = language_metric.get('TP')
@@ -111,7 +116,6 @@ class Model:
             FN = language_metric.get('FN')
 
             # Calculate precision TP/(TP+FP)
-            NaN = "NaN"
             if TP+FP > 0:
                 P = TP/(TP+FP)
             else:
@@ -124,7 +128,6 @@ class Model:
             else:
                 R = np.nan
             metrics['Recall'].append(R)
-
             # Calculate F1 measure (B=1, precision and recall have same importance)
             # F = (B^2 + 1)PR/(B^2P+R)
             B = 1
@@ -133,6 +136,7 @@ class Model:
                 # Add F1 measure to F1_total and F1_weighted_total
                 F1_total += F1
                 F1_weighted_total += F1 * self.language_probabilities[lang]
+                F1_languages_accounted += 1
             else:
                 F1 = np.nan
             metrics['F1'].append(F1)
@@ -174,7 +178,5 @@ class Model:
         print(f"{'Accuracy':15s}{metrics['Acc']: .4f}")
         print(f"{'Macro-F1':15s}{macro_F1:> .4f}")
         print(f"{'Weighted-F1':15s}{weighted_F1:> .4f}")
-
-
 
 
