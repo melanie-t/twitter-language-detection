@@ -1,6 +1,6 @@
 # Language Detection Using N-Grams
 
-Repository: https://github.com/melanie-t/twitter-language-detection
+https://github.com/melanie-t/twitter-language-detection
 
 ## Project
 This project uses Naive Bayes Classification for Natural Language Processing. The goal of the project is to detect the language (in a pre-specified list) of tweets using variations of N-Grams models. The languages supported are:
