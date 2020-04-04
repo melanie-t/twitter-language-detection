@@ -12,21 +12,25 @@ def main():
     print("⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆")
     print("★ Welcome to Language Detection by No Look Pass ★")
     print("⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆⋆")
-    while True:
-        print("Enter Training Set file path: ", end="")
-        training_set = input()
-        training_set = "OriginalDataSet/training-tweets.txt"
-        # Source: https://www.guru99.com/python-check-if-file-exists.html
-        if path.exists(training_set):
-            print("\tOK: Training File Accepted\n")
-            break
-        else:
-            print("\tERROR: File path does not exist\n")
+
+    training_set = "OriginalDataSet/training-tweets.txt"
+
+    # Training Set is fixed for the purposes of the demo
+    # while True:
+    #     print("Enter Training Set file path: ", end="")
+    #     training_set = input()
+    #     training_set = "OriginalDataSet/training-tweets.txt"
+    #     # Source: https://www.guru99.com/python-check-if-file-exists.html
+    #     if path.exists(training_set):
+    #         print("\tOK: Training File Accepted\n")
+    #         break
+    #     else:
+    #         print("\tERROR: File path does not exist\n")
 
     while True:
         print("Enter Test Set file path: ", end="")
         test_set = input()
-        test_set = "OriginalDataSet/test-tweets-given.txt"
+        # test_set = "OriginalDataSet/test-tweets-given.txt"
         # Source: https://www.guru99.com/python-check-if-file-exists.html
         if path.exists(test_set):
             print("\tOK: Test File Accepted\n")
